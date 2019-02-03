@@ -3,7 +3,7 @@
 ## Basic
 ~~~ php
 <?php
-use kuakling\smartwizard\Step;
+use is7\smartwizard\Step;
 
 echo Step::widget([
     'widgetOptions' => [

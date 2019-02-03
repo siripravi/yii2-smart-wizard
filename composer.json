@@ -1,21 +1,21 @@
 {
-    "name": "kuakling/yii2-smart-wizard",
+    "name": "is7/yii2-smart-wizard",
     "description": "Yii2 smart-wizard.",
     "type": "yii2-extension",
     "keywords": ["yii2","extension"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Surakit",
-            "email": "kuakling@gmail.com"
+            "name": "Dmitry Zhukov",
+            "email": "dmitry@zhukovs.ru"
         }
     ],
     "require": {
-        "techlab/SmartWizard": "*"
+        "techlab/SmartWizard": "^4.2.2"
     },
     "autoload": {
         "psr-4": {
-            "kuakling\\smartwizard\\": ""
+            "is7\\smartwizard\\": ""
         }
     }
 }

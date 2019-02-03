@@ -1,11 +1,12 @@
 <?php
-namespace kuakling\smartwizard;
+namespace is7\smartwizard;
 
 use yii\helpers\Html;
 
 /**
- * \kuakling\smartwizard\Step.
+ * \is7\smartwizard\Step.
  *
+ * @author Dmitry Zhukov <dmitry@zhukovs.ru>
  * @author kuakling <kuakling@gmail.com>
  * @since 2.0
  */
@@ -90,7 +91,7 @@ JS;
                     break;
             }
         }
-        $view->registerCssFile($asset->baseUrl.'/css/'.$cssFile, ['depends' => ['\kuakling\smartwizard\SmartWizardAsset']]);
+        $view->registerCssFile($asset->baseUrl.'/css/'.$cssFile, ['depends' => ['\is7\smartwizard\SmartWizardAsset']]);
         
         return $theme;
     }
