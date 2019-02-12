@@ -135,7 +135,9 @@ class Step extends \yii\base\Widget
             switch ($buttonName) {
                 case 'submit':
                     if ($this->formId) {
-                        $this->addEvent('showStep',$this->defaultSubmitDisableFunction($buttonOptions['id']));
+                        if (count($this->items) > 1) {
+                            $this->addEvent('showStep', $this->defaultSubmitDisableFunction($buttonOptions['id']));
+                        }
                         $this->addEvent('leaveStep',$this->defaultSubmitValidateFunction());
                         if (!isset($buttonOptions['onClick'])) {
                             $buttonOptions['onClick'] = $this->defaultSubmitOnClickFunction();
