@@ -151,6 +151,10 @@ class Step extends \yii\base\Widget
                     break;
             }
 
+            if (isset($buttonOptions['visible'])) {
+                $this->addEvent('showStep', $this->buttonVisibleFunction($buttonOptions['id'], $buttonOptions['visible']));
+            }
+
             $this->registerExtraButton($buttonOptions);
         }
     }
@@ -186,7 +190,7 @@ class Step extends \yii\base\Widget
     }
 
     public function addEvent($event, $function) {
-        if (isset($this->events[$event]) && !is_array([$this->events[$event]])) {
+        if (isset($this->events[$event]) && !is_array($this->events[$event])) {
             $this->events[$event] = [$this->events[$event]];
         }
         $this->events[$event][] = $function;
@@ -260,5 +264,30 @@ function(e, anchorObject, stepNumber, stepDirection) {
     return true;
 }
 JS;
+    }
+
+    private function buttonVisibleFunction($buttonId, $visible) {
+        if (!is_array($visible)) {
+            $visible = [$visible];
+        }
+
+        $js = [];
+        $if = [];
+
+        foreach ($visible as $value) {
+            if ($value == 'final' && count($this->items) == 1) {
+                $value = 'first'; // If only one Step, 'final' will be the 'first'
+            }
+            $if[] = 'if ('.( is_numeric($value) ? 'stepNumber' : 'stepPosition' ).' === '.( is_numeric($value) ? $value : "'$value'" ).') { $("#'.$buttonId.'").show(); }';
+        }
+
+        if (!empty($if)) {
+            $js[] = 'function(e, anchorObject, stepNumber, stepDirection, stepPosition) {';
+            $js[] = implode(' else ', $if);
+            $js[] = 'else { $("#'.$buttonId.'").hide(); }';
+            $js[] = '}';
+        }
+
+        return implode("\n", $js);
     }
 }

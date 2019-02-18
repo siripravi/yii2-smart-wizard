@@ -42,8 +42,12 @@ echo Step::widget([
             'icon' => 'glyphicon glyphicon-ok',
             'label' => 'Click',
             'class' => 'btn btn-primary',
+            'visible' => 'final', // stepPosition string or stepNumber integer. Array supported, ex. [0,3,5] or ['first', 3]
             'onClick' => 'function() { alert("Clicked!"); }',
         ],
+    ],
+    'events' => [
+        'leaveStep' => 'function(e, anchorObject, stepNumber, stepDirection) { alert(stepNumber); }',
     ],
     'items' => [
         1 => [
