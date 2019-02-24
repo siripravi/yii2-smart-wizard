@@ -41,6 +41,11 @@ class Step extends \yii\base\Widget
     public $events = [];
 
     /**
+     * @var boolean|array progress bar options
+     */
+    public $progress = false;
+
+    /**
      * @var string Yii Form Id
      */
     public $formId = null;
@@ -56,6 +61,9 @@ class Step extends \yii\base\Widget
     public function run()
     {
         $asset = SmartWizardAsset::register($this->getView());
+        StepAsset::register($this->getView());
+
+        $this->prepareProgress();
 
         if ($this->formId && empty($this->extraButtons)) {
             $this->extraButtons[] = 'submit';
@@ -63,7 +71,47 @@ class Step extends \yii\base\Widget
         $this->registerExtraButtons();
         $this->registerEvents();
         $this->registerWidget($asset);
+        $this->afterRegisterWidget();
         return $this->renderWidget($asset);
+    }
+
+    public function prepareProgress() {
+        if ($this->progress === false) {
+            return;
+        }
+        if (!is_array($this->progress)) {
+            $this->progress = ['enabled' => boolval($this->progress)];
+        }
+
+        if (isset($this->progress['enabled']) && $this->progress['enabled'] === false) {
+            return;
+        }
+        // Otherwise assume that Progress is enabled
+        $this->progress['enabled'] = true;
+
+        if (!isset($this->progress['class'])) {
+            $this->progress['class'] = '';
+        }
+        $this->progress['class'] = 'progress-bar '.$this->progress['class'];
+
+        $this->progress['label'] = !isset($this->progress['label']) ? true : boolval($this->progress['label']);
+
+        if (isset($this->widgetOptions['toolbarSettings']['toolbarButtonPosition'])) {
+            switch ($this->widgetOptions['toolbarSettings']['toolbarButtonPosition']) {
+                case 'left':
+                    $this->progress['position'] = 'right';
+                    break;
+                case 'right':
+                default:
+                    $this->progress['position'] = 'left';
+                    break;
+            }
+        }
+        else {
+            $this->progress['position'] = 'left';
+        }
+
+        $this->addEvent('showStep', $this->defaultProgressFunction());
     }
     
     public function renderWidget($asset)
@@ -114,6 +162,13 @@ class Step extends \yii\base\Widget
         }
         $jsonOptions = \yii\helpers\Json::encode($this->widgetOptions);
         $view->registerJs("$('#{$this->id}').smartWizard($jsonOptions);");
+    }
+
+    public function afterRegisterWidget()
+    {
+        if ($this->progress['enabled'] === true) {
+            $this->registerProgress();
+        }
     }
 
     public function registerExtraButtons() {
@@ -189,6 +244,29 @@ class Step extends \yii\base\Widget
         }
     }
 
+    public function registerProgress() {
+        $view = $this->getView();
+
+        $jsProgress   = ["$('<div>')"];
+        $jsProgress[] = "addClass('{$this->progress['class']}')";
+        $jsProgress[] = "attr('role', 'progressbar')";
+        $jsProgress[] = "attr('aria-valuemin', '0')";
+        $jsProgress[] = "attr('aria-valuemax', '100')";
+        $jsProgress[] = "attr('aria-valuenow', '0')";
+        $jsProgress[] = "css('width', '0%')";
+        if ($this->progress['label']) {
+            $jsProgress[] = "css('min-width', '2em')";
+            $jsProgress[] = "text('0%')";
+        }
+        else {
+            $jsProgress[] = "css('min-width', '1%')";
+        }
+
+        $js = "$('.sw-toolbar').append($('<div>').addClass('btn-group sw-progressbar pull-{$this->progress['position']}').append($('<div>').addClass('progress').append(".implode('.', $jsProgress).")));";
+
+        $view->registerJs($js);
+    }
+
     public function addEvent($event, $function) {
         if (isset($this->events[$event]) && !is_array($this->events[$event])) {
             $this->events[$event] = [$this->events[$event]];
@@ -262,6 +340,21 @@ function(e, anchorObject, stepNumber, stepDirection) {
         }
     }
     return true;
+}
+JS;
+    }
+
+    private function defaultProgressFunction() {
+        $countItems = count($this->items);
+        $updateLabel = json_encode($this->progress['label']);
+        return <<<JS
+function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
+    var percent = Math.round(100*stepNumber/{$countItems});
+    var progress = $('.sw-progressbar > .progress > .progress-bar'); 
+    progress.attr('aria-valuenow', percent).css('width', percent + '%');
+    if ({$updateLabel}) {
+        progress.text(percent + '%');
+    }
 }
 JS;
     }

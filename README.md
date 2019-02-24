@@ -49,6 +49,11 @@ echo Step::widget([
     'events' => [
         'leaveStep' => 'function(e, anchorObject, stepNumber, stepDirection) { alert(stepNumber); }',
     ],
+    'progress' => [
+        'enabled' => true,
+        'label'   => true, // show label with percents
+        'class'   => 'progress-bar-success',
+    ],
     'items' => [
         1 => [
             'icon' => 'glyphicon glyphicon-user',

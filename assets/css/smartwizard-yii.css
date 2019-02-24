@@ -1,0 +1,8 @@
+.sw-progressbar {
+    width: 50%;
+    margin: 15px 0;
+}
+
+.sw-progressbar > .progress {
+    margin: 0;
+}
