@@ -95,6 +95,7 @@ class Step extends \yii\base\Widget
         $this->progress['class'] = 'progress-bar '.$this->progress['class'];
 
         $this->progress['label'] = !isset($this->progress['label']) ? true : boolval($this->progress['label']);
+        $this->progress['actual'] = !isset($this->progress['actual']) ? true : boolval($this->progress['actual']);
 
         if (isset($this->widgetOptions['toolbarSettings']['toolbarButtonPosition'])) {
             switch ($this->widgetOptions['toolbarSettings']['toolbarButtonPosition']) {
@@ -329,13 +330,16 @@ JS;
 function(e, anchorObject, stepNumber, stepDirection) {
     var elmForm = $('#{$this->id}-form-step-' + stepNumber);
     if(stepDirection === 'forward' && elmForm){
-        var inputs = elmForm.find('*[id]:visible');
+        var inputs = elmForm.find('*[id]:visible').map(function() { return this.id; }).get();
         data = $('#{$this->formId}').data("yiiActiveForm");
         $.each(data.attributes, function(i, item) {
-            this.status = 3;
+            if (inputs.includes(item.id)) {
+                this.status = 3;
+            }
         });
         $('#{$this->formId}').yiiActiveForm("validate");
-        if (elmForm.find(".has-error").length) {
+        if (elmForm.find(".has-error").not(".error-summary").length) {
+            elmForm.find(".error-summary").removeClass('hidden').show();
             return false;
         }
     }
@@ -347,14 +351,19 @@ JS;
     private function defaultProgressFunction() {
         $countItems = count($this->items);
         $updateLabel = json_encode($this->progress['label']);
+        $actualPercentage = json_encode($this->progress['actual']);
         return <<<JS
 function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
-    var percent = Math.round(100*stepNumber/{$countItems});
-    var progress = $('.sw-progressbar > .progress > .progress-bar'); 
-    progress.attr('aria-valuenow', percent).css('width', percent + '%');
-    if ({$updateLabel}) {
-        progress.text(percent + '%');
-    }
+    $(document).ready(function(){
+        var percent = 0;
+        if (!{$actualPercentage}) { percent = Math.round(100*(stepNumber+1)/{$countItems}); }
+        else { percent = Math.round(100*stepNumber/{$countItems}); }
+        var progress = $('.sw-progressbar > .progress > .progress-bar'); 
+        progress.attr('aria-valuenow', percent).css('width', percent + '%');
+        if ({$updateLabel}) {
+            progress.text(percent + '%');
+        }
+    });
 }
 JS;
     }
