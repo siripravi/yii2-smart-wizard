@@ -333,13 +333,14 @@ function(e, anchorObject, stepNumber, stepDirection) {
         var inputs = elmForm.find('*[id]:visible').map(function() { return this.id; }).get();
         data = $('#{$this->formId}').data("yiiActiveForm");
         $.each(data.attributes, function(i, item) {
-            if (inputs.includes(item.id)) {
+            if ($.inArray(item.id, inputs) > -1) {
                 this.status = 3;
             }
         });
         $('#{$this->formId}').yiiActiveForm("validate");
         if (elmForm.find(".has-error").not(".error-summary").length) {
             elmForm.find(".error-summary").removeClass('hidden').show();
+            $(anchorObject).parent("li").addClass("danger");
             return false;
         }
     }
