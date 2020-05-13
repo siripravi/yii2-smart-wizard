@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "techlab/SmartWizard": "^4.2.2"
+        "techlab/smartwizard": "^4.2.2"
     },
     "autoload": {
         "psr-4": {
