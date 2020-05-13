@@ -1,5 +1,9 @@
 .sw-progressbar {
     width: 50%;
+    margin: 15px 0;
+}
+
+.justify-content-start > .sw-progressbar, .justify-content-end > .sw-progressbar {
     margin: 5px 0;
 }
 
@@ -7,10 +11,10 @@
     margin: 0;
 }
 
-.justify-content-start > .sw-btn-group {
+.justify-content-start > .sw-btn-group, .justify-content-start > .sw-btn-group-extra {
     float: left;
 }
 
-.justify-content-end > .sw-btn-group {
+.justify-content-end > .sw-btn-group, .justify-content-end > .sw-btn-group-extra {
     float: right;
 }

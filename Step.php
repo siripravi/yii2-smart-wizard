@@ -167,7 +167,7 @@ class Step extends \yii\base\Widget
 
     public function afterRegisterWidget()
     {
-        if ($this->progress['enabled'] === true) {
+        if ($this->progress && $this->progress['enabled'] === true) {
             $this->registerProgress();
         }
     }
@@ -263,7 +263,23 @@ class Step extends \yii\base\Widget
             $jsProgress[] = "css('min-width', '1%')";
         }
 
-        $js = "$('.sw-toolbar').append($('<div>').addClass('btn-group sw-progressbar pull-{$this->progress['position']}').append($('<div>').addClass('progress').append(".implode('.', $jsProgress).")));";
+        $progressClass   = ['btn-group', 'sw-progressbar'];
+        $progressClass[] = 'pull-'.$this->progress['position']; // BS 3.x
+        $progressClass[] = 'align-self-center'; // BS 4.x
+        switch ($this->progress['position']) {
+            case 'left':
+                $jsMethod = 'prepend';
+                $progressClass[] = 'mr-auto'; // BS 4.x
+                break;
+            case 'right':
+                $jsMethod = 'append';
+                $progressClass[] = 'ml-auto'; //BS 4.x
+                break;
+            default:
+                $jsMethod = 'append';
+        }
+
+        $js = "$('.sw-toolbar').$jsMethod($('<div>').addClass('".implode(' ', $progressClass)."').append($('<div>').addClass('progress').append(".implode('.', $jsProgress).")));";
 
         $view->registerJs($js);
     }
@@ -330,7 +346,7 @@ JS;
 function(e, anchorObject, stepNumber, stepDirection) {
     var elmForm = $('#{$this->id}-form-step-' + stepNumber);
     if(stepDirection === 'forward' && elmForm){
-        var inputs = elmForm.find('*[id]:visible').map(function() { return this.id; }).get();
+        var inputs = elmForm.find('*[id]:visible').map(function() { return this.id.replace(/select2-(\S+)-container/i,'$1'); }).get();
         data = $('#{$this->formId}').data("yiiActiveForm");
         $.each(data.attributes, function(i, item) {
             if ($.inArray(item.id, inputs) > -1) {
