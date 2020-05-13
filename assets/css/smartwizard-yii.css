@@ -1,8 +1,16 @@
 .sw-progressbar {
     width: 50%;
-    margin: 15px 0;
+    margin: 5px 0;
 }
 
 .sw-progressbar > .progress {
     margin: 0;
+}
+
+.justify-content-start > .sw-btn-group {
+    float: left;
+}
+
+.justify-content-end > .sw-btn-group {
+    float: right;
 }
