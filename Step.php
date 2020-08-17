@@ -359,6 +359,9 @@ function(e, anchorObject, stepNumber, stepDirection) {
             $(anchorObject).parent("li").addClass("danger");
             return false;
         }
+        else {
+            $(anchorObject).parent("li").removeClass("danger");
+        }
     }
     return true;
 }
