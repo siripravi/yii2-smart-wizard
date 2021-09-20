@@ -4,6 +4,7 @@ namespace is7\smartwizard;
 use yii\helpers\BaseInflector;
 use yii\helpers\Html;
 use yii\web\JsExpression;
+use yii\web\View;
 
 /**
  * \is7\smartwizard\Step.
@@ -96,6 +97,7 @@ class Step extends \yii\base\Widget
 
         $this->progress['label'] = !isset($this->progress['label']) ? true : boolval($this->progress['label']);
         $this->progress['actual'] = !isset($this->progress['actual']) ? true : boolval($this->progress['actual']);
+        $this->progress['disable100'] = !isset($this->progress['disable100']) ? false : boolval($this->progress['disable100']);
 
         if (isset($this->widgetOptions['toolbarSettings']['toolbarButtonPosition'])) {
             switch ($this->widgetOptions['toolbarSettings']['toolbarButtonPosition']) {
@@ -240,7 +242,7 @@ class Step extends \yii\base\Widget
                 $functions = [ $functions ];
             }
             foreach ($functions as $function) {
-                $view->registerJs("$('#{$this->id}').on('{$event}', {$function});");
+                $view->registerJs("$('#{$this->id}').on('{$event}', {$function});", View::POS_LOAD);
             }
         }
     }
@@ -329,7 +331,9 @@ JS;
     private function defaultSubmitDisableFunction($buttonId) {
         return <<<JS
 function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
-    $('#{$this->formId}').yiiActiveForm("resetForm");
+    $(document).on('load', function() {
+        $('#{$this->formId}').yiiActiveForm("resetForm");
+    });    
     if(stepPosition === 'first') {
         $('#{$buttonId}').attr('disabled', 'disabled');
     } else if(stepPosition === 'final'){
@@ -345,9 +349,9 @@ JS;
         return <<<JS
 function(e, anchorObject, stepNumber, stepDirection) {
     var elmForm = $('#{$this->id}-form-step-' + stepNumber);
-    if(stepDirection === 'forward' && elmForm){
+    if(stepDirection === 'forward' && elmForm) {
         var inputs = elmForm.find('*[id]:visible').map(function() { return this.id.replace(/select2-(\S+)-container/i,'$1'); }).get();
-        data = $('#{$this->formId}').data("yiiActiveForm");
+        var data = $('#{$this->formId}').data("yiiActiveForm");
         $.each(data.attributes, function(i, item) {
             if ($.inArray(item.id, inputs) > -1) {
                 this.status = 3;
@@ -372,12 +376,14 @@ JS;
         $countItems = count($this->items);
         $updateLabel = json_encode($this->progress['label']);
         $actualPercentage = json_encode($this->progress['actual']);
+        $disable100 = json_encode($this->progress['disable100']);
         return <<<JS
 function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
     $(document).ready(function(){
         var percent = 0;
         if (!{$actualPercentage}) { percent = Math.round(100*(stepNumber+1)/{$countItems}); }
         else { percent = Math.round(100*stepNumber/{$countItems}); }
+        if (percent == 100 && {$disable100}) { percent = 99; }
         var progress = $('.sw-progressbar > .progress > .progress-bar'); 
         progress.attr('aria-valuenow', percent).css('width', percent + '%');
         if ({$updateLabel}) {
