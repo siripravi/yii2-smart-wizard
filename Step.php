@@ -1,5 +1,5 @@
 <?php
-namespace is7\smartwizard;
+namespace siripravi\smartwizard;
 
 use yii\helpers\BaseInflector;
 use yii\helpers\Html;
