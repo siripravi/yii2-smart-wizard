@@ -311,7 +311,7 @@ class Step extends \yii\base\Widget
                     break;
             }
         }
-        $view->registerCssFile($asset->baseUrl.'/css/'.$cssFile, ['depends' => ['\is7\smartwizard\SmartWizardAsset']]);
+        $view->registerCssFile($asset->baseUrl.'/css/'.$cssFile, ['depends' => ['\siripravi\smartwizard\SmartWizardAsset']]);
         
         return $theme;
     }
