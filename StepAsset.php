@@ -14,7 +14,7 @@ class StepAsset extends AssetBundle
      * @inheritdoc
      */
     public $depends = [
-        '\is7\smartwizard\SmartWizardAsset',
+        '\siripravi\smartwizard\SmartWizardAsset',
         'yii\web\JqueryAsset'
     ];
 
