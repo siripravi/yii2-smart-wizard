@@ -18,3 +18,6 @@
 .justify-content-end > .sw-btn-group, .justify-content-end > .sw-btn-group-extra {
     float: right;
 }
+.sw-btn-prev{
+    float:left;
+}
