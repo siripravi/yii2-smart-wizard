@@ -19,5 +19,5 @@
     float: right;
 }
 .sw-btn-prev{
-    float:left;
+    float:left !important;
 }
