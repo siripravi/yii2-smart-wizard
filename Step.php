@@ -1,4 +1,5 @@
 <?php
+
 namespace siripravi\smartwizard;
 
 use yii\helpers\BaseInflector;
@@ -17,9 +18,9 @@ class Step extends \yii\base\Widget
 {
 
     public $widgetOptions = [];
-    
+
     public $items = [];
-    
+
     /**
      * @var array widget extra buttons
      * [
@@ -76,7 +77,8 @@ class Step extends \yii\base\Widget
         return $this->renderWidget($asset);
     }
 
-    public function prepareProgress() {
+    public function prepareProgress()
+    {
         if ($this->progress === false) {
             return;
         }
@@ -93,7 +95,7 @@ class Step extends \yii\base\Widget
         if (!isset($this->progress['class'])) {
             $this->progress['class'] = '';
         }
-        $this->progress['class'] = 'progress-bar '.$this->progress['class'];
+        $this->progress['class'] = 'progress-bar ' . $this->progress['class'];
 
         $this->progress['label'] = !isset($this->progress['label']) ? true : boolval($this->progress['label']);
         $this->progress['actual'] = !isset($this->progress['actual']) ? true : boolval($this->progress['actual']);
@@ -109,46 +111,46 @@ class Step extends \yii\base\Widget
                     $this->progress['position'] = 'left';
                     break;
             }
-        }
-        else {
+        } else {
             $this->progress['position'] = 'left';
         }
 
         $this->addEvent('showStep', $this->defaultProgressFunction());
     }
-    
+
     public function renderWidget($asset)
     {
         $render['nav'] = $this->renderNav();
         $render['content'] = $this->renderContent($asset);
-        return Html::tag('div', implode("\n", $render), ['id' => $this->id, 'class' => 'sw-main sw-theme-'.$this->getTheme($asset)]);
+        return Html::tag('div', implode("\n", $render), ['id' => $this->id, 'class' => 'sw-main sw-theme-' . $this->getTheme($asset)]);
     }
-    
+
     public function renderNav()
     {
-        return Html::ul($this->items, ['item' => function($item, $index) {
-            return Html::tag('li', 
+        return Html::ul($this->items, ['item' => function ($item, $index) {
+            return Html::tag(
+                'li',
                 $this->render('_nav-item-default', ['item' => $item, 'index' => $index, 'widget' => $this]),
                 ['class' => 'post']
             );
         }, 'class' => 'nav nav-tabs step-anchor']);
     }
-    
+
     public function renderContent($asset)
     {
         $contentArr = [];
         $formStepNum = 0;
         foreach ($this->items as $key => $item) {
-            if($this->formId) {
+            if ($this->formId) {
                 $item['content'] = Html::tag('div', $item['content'], ['id' => "{$this->id}-form-step-{$formStepNum}"]);
                 $formStepNum++;
             }
             $contentArr[] = Html::tag('div', $item['content'], ['id' => "{$this->id}-step-{$key}", 'class' => 'step-content', 'style' => 'display:none']);
         }
-        
-        return Html::tag('div',implode("\n", $contentArr), ['class' => 'sw-container tab-content']);
+
+        return Html::tag('div', implode("\n", $contentArr), ['class' => 'sw-container tab-content']);
     }
-    
+
     public function registerWidget($asset)
     {
         $view = $this->getView();
@@ -158,8 +160,7 @@ class Step extends \yii\base\Widget
                     $this->widgetOptions['toolbarSettings']['toolbarExtraButtons'] = new JsExpression($this->widgetOptions['toolbarSettings']['toolbarExtraButtons']);
                 }
                 $this->widgetOptions['toolbarSettings']['toolbarExtraButtons']->expression .= ".concat([" . implode(', ', $this->toolbarExtraButtons) . "])";
-            }
-            else {
+            } else {
                 $this->widgetOptions['toolbarSettings']['toolbarExtraButtons'] = new JsExpression("[" . implode(', ', $this->toolbarExtraButtons) . "]");
             }
         }
@@ -174,14 +175,15 @@ class Step extends \yii\base\Widget
         }
     }
 
-    public function registerExtraButtons() {
+    public function registerExtraButtons()
+    {
         foreach ($this->extraButtons as $buttonName => $buttonOptions) {
             if (is_int($buttonName)) { // array index
                 $buttonName = $buttonOptions;
                 $buttonOptions = [];
             }
 
-            $buttonOptions['name'] = 'btn'.BaseInflector::camelize($buttonName);
+            $buttonOptions['name'] = 'btn' . BaseInflector::camelize($buttonName);
             $buttonOptions['id']   = BaseInflector::camel2id($buttonOptions['name']);
             if (!isset($buttonOptions['label'])) {
                 $buttonOptions['label'] = BaseInflector::camel2words($buttonName);
@@ -196,7 +198,7 @@ class Step extends \yii\base\Widget
                         if (count($this->items) > 1) {
                             $this->addEvent('showStep', $this->defaultSubmitDisableFunction($buttonOptions['id']));
                         }
-                        $this->addEvent('leaveStep',$this->defaultSubmitValidateFunction());
+                        $this->addEvent('leaveStep', $this->defaultSubmitValidateFunction());
                         if (!isset($buttonOptions['onClick'])) {
                             $buttonOptions['onClick'] = $this->defaultSubmitOnClickFunction();
                         }
@@ -217,11 +219,12 @@ class Step extends \yii\base\Widget
         }
     }
 
-    public function registerExtraButton($options) {
+    public function registerExtraButton($options)
+    {
         $view = $this->getView();
 
         if (isset($options['icon'])) {
-            $options['label'] = Html::tag('i',null,['class' => $options['icon']]).' '.$options['label'];
+            $options['label'] = Html::tag('i', null, ['class' => $options['icon']]) . ' ' . $options['label'];
         }
 
         $jQuery   = ["$('<button></button>')"];
@@ -231,15 +234,16 @@ class Step extends \yii\base\Widget
         if (isset($options['onClick'])) {
             $jQuery[] = "on('click', {$options['onClick']})";
         }
-        $view->registerJs("var {$options['name']} = ".implode('.', $jQuery).";");
+        $view->registerJs("var {$options['name']} = " . implode('.', $jQuery) . ";");
         $this->toolbarExtraButtons[] = $options['name'];
     }
 
-    public function registerEvents() {
+    public function registerEvents()
+    {
         $view = $this->getView();
         foreach ($this->events as $event => $functions) {
             if (!is_array($functions)) {
-                $functions = [ $functions ];
+                $functions = [$functions];
             }
             foreach ($functions as $function) {
                 $view->registerJs("$('#{$this->id}').on('{$event}', {$function});", View::POS_LOAD);
@@ -247,7 +251,8 @@ class Step extends \yii\base\Widget
         }
     }
 
-    public function registerProgress() {
+    public function registerProgress()
+    {
         $view = $this->getView();
 
         $jsProgress   = ["$('<div>')"];
@@ -260,13 +265,12 @@ class Step extends \yii\base\Widget
         if ($this->progress['label']) {
             $jsProgress[] = "css('min-width', '2em')";
             $jsProgress[] = "text('0%')";
-        }
-        else {
+        } else {
             $jsProgress[] = "css('min-width', '1%')";
         }
 
         $progressClass   = ['btn-group', 'sw-progressbar'];
-        $progressClass[] = 'pull-'.$this->progress['position']; // BS 3.x
+        $progressClass[] = 'pull-' . $this->progress['position']; // BS 3.x
         $progressClass[] = 'align-self-center'; // BS 4.x
         switch ($this->progress['position']) {
             case 'left':
@@ -281,12 +285,13 @@ class Step extends \yii\base\Widget
                 $jsMethod = 'append';
         }
 
-        $js = "$('.sw-toolbar').$jsMethod($('<div>').addClass('".implode(' ', $progressClass)."').append($('<div>').addClass('progress').append(".implode('.', $jsProgress).")));";
+        $js = "$('.sw-toolbar').$jsMethod($('<div>').addClass('" . implode(' ', $progressClass) . "').append($('<div>').addClass('progress').append(" . implode('.', $jsProgress) . ")));";
 
         $view->registerJs($js);
     }
 
-    public function addEvent($event, $function) {
+    public function addEvent($event, $function)
+    {
         if (isset($this->events[$event]) && !is_array($this->events[$event])) {
             $this->events[$event] = [$this->events[$event]];
         }
@@ -298,25 +303,34 @@ class Step extends \yii\base\Widget
         $view = $this->getView();
         $theme = 'default';
         $cssFile = 'smart_wizard.css';
-        if(isset($this->widgetOptions['theme'])){
+        if (isset($this->widgetOptions['theme'])) {
             $requestTheme = $this->widgetOptions['theme'];
             switch ($requestTheme) {
-                case 'arrows' : $cssFile = 'smart_wizard_theme_arrows.css'; $theme = $requestTheme;
+                case 'arrows':
+                    $cssFile = 'smart_wizard_theme_arrows.css';
+                    $theme = $requestTheme;
                     break;
-                case 'circles' : $cssFile = 'smart_wizard_theme_circles.css'; $theme = $requestTheme;
+                case 'circles':
+                    $cssFile = 'smart_wizard_theme_circles.css';
+                    $theme = $requestTheme;
                     break;
-                case 'dots' : $cssFile = 'smart_wizard_theme_dots.css'; $theme = $requestTheme;
+                case 'dots':
+                    $cssFile = 'smart_wizard_theme_dots.css';
+                    $theme = $requestTheme;
                     break;
-                default : $cssFile = 'smart_wizard.css'; $theme = 'default';
+                default:
+                    $cssFile = 'smart_wizard.css';
+                    $theme = 'default';
                     break;
             }
         }
-        $view->registerCssFile($asset->baseUrl.'/css/'.$cssFile, ['depends' => ['\siripravi\smartwizard\SmartWizardAsset']]);
-        
+        $view->registerCssFile($asset->baseUrl . '/css/' . $cssFile, ['depends' => ['\siripravi\smartwizard\SmartWizardAsset']]);
+
         return $theme;
     }
 
-    private function defaultSubmitOnClickFunction() {
+    private function defaultSubmitOnClickFunction()
+    {
         return <<<JS
 function() {
     $.each($('.step-content'), function() {
@@ -328,7 +342,8 @@ function() {
 JS;
     }
 
-    private function defaultSubmitDisableFunction($buttonId) {
+    private function defaultSubmitDisableFunction($buttonId)
+    {
         return <<<JS
 function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
     $(document).on('load', function() {
@@ -345,7 +360,8 @@ function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
 JS;
     }
 
-    private function defaultSubmitValidateFunction() {
+    private function defaultSubmitValidateFunction()
+    {
         return <<<JS
 function(e, anchorObject, stepNumber, stepDirection) {
     var elmForm = $('#{$this->id}-form-step-' + stepNumber);
@@ -372,7 +388,8 @@ function(e, anchorObject, stepNumber, stepDirection) {
 JS;
     }
 
-    private function defaultProgressFunction() {
+    private function defaultProgressFunction()
+    {
         $countItems = count($this->items);
         $updateLabel = json_encode($this->progress['label']);
         $actualPercentage = json_encode($this->progress['actual']);
@@ -394,7 +411,8 @@ function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
 JS;
     }
 
-    private function buttonVisibleFunction($buttonId, $visible) {
+    private function buttonVisibleFunction($buttonId, $visible)
+    {
         if (!is_array($visible)) {
             $visible = [$visible];
         }
@@ -406,13 +424,13 @@ JS;
             if ($value == 'final' && count($this->items) == 1) {
                 $value = 'first'; // If only one Step, 'final' will be the 'first'
             }
-            $if[] = 'if ('.( is_numeric($value) ? 'stepNumber' : 'stepPosition' ).' === '.( is_numeric($value) ? $value : "'$value'" ).') { $("#'.$buttonId.'").show(); }';
+            $if[] = 'if (' . (is_numeric($value) ? 'stepNumber' : 'stepPosition') . ' === ' . (is_numeric($value) ? $value : "'$value'") . ') { $("#' . $buttonId . '").show(); }';
         }
 
         if (!empty($if)) {
             $js[] = 'function(e, anchorObject, stepNumber, stepDirection, stepPosition) {';
             $js[] = implode(' else ', $if);
-            $js[] = 'else { $("#'.$buttonId.'").hide(); }';
+            $js[] = 'else { $("#' . $buttonId . '").hide(); }';
             $js[] = '}';
         }
 
